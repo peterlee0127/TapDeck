@@ -2,22 +2,22 @@
 import PackageDescription
 
 let package = Package(
-    name: "TrackpadClicker",
+    name: "TapDeck",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "TrackpadClicker", targets: ["TrackpadClicker"])
+        .executable(name: "TapDeck", targets: ["TapDeck"])
     ],
     targets: [
         .executableTarget(
-            name: "TrackpadClicker",
+            name: "TapDeck",
             linkerSettings: [
                 .linkedFramework("AppKit"),
                 .linkedFramework("ApplicationServices")
             ]
         ),
         .testTarget(
-            name: "TrackpadClickerTests",
-            dependencies: ["TrackpadClicker"]
+            name: "TapDeckTests",
+            dependencies: ["TapDeck"]
         )
     ]
 )

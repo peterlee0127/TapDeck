@@ -17,7 +17,7 @@
 		A10000000000000000000008 /* MultitouchBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* MultitouchBridge.swift */; };
 		A10000000000000000000009 /* PreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* PreferencesStore.swift */; };
 		A1000000000000000000000A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* SettingsView.swift */; };
-		A1000000000000000000000B /* TrackpadClickerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* TrackpadClickerApp.swift */; };
+		A1000000000000000000000B /* TapDeckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* TapDeckApp.swift */; };
 		A1000000000000000000000C /* GestureRecognizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000C /* GestureRecognizerTests.swift */; };
 		A1000000000000000000000D /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* AppIcon.icns */; };
 		A1000000000000000000000E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A20000000000000000000014 /* AppKit.framework */; };
@@ -33,7 +33,7 @@
 			containerPortal = A80000000000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A70000000000000000000001;
-			remoteInfo = TrackpadClickerDirect;
+			remoteInfo = TapDeck;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -48,10 +48,10 @@
 		A20000000000000000000008 /* MultitouchBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultitouchBridge.swift; sourceTree = "<group>"; };
 		A20000000000000000000009 /* PreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStore.swift; sourceTree = "<group>"; };
 		A2000000000000000000000A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		A2000000000000000000000B /* TrackpadClickerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadClickerApp.swift; sourceTree = "<group>"; };
+		A2000000000000000000000B /* TapDeckApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapDeckApp.swift; sourceTree = "<group>"; };
 		A2000000000000000000000C /* GestureRecognizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerTests.swift; sourceTree = "<group>"; };
 		A2000000000000000000000D /* TapDeck Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TapDeck Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A2000000000000000000000E /* TrackpadClickerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackpadClickerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000000000000000000000E /* TapDeckTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapDeckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000000000000000000000F /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		A20000000000000000000010 /* AppIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon.png; sourceTree = "<group>"; };
 		A20000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -100,12 +100,12 @@
 		A50000000000000000000002 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				A50000000000000000000003 /* TrackpadClicker */,
+				A50000000000000000000003 /* TapDeck */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		A50000000000000000000003 /* TrackpadClicker */ = {
+		A50000000000000000000003 /* TapDeck */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000016 /* ActivityLog.swift */,
@@ -120,9 +120,9 @@
 				A20000000000000000000008 /* MultitouchBridge.swift */,
 				A20000000000000000000009 /* PreferencesStore.swift */,
 				A2000000000000000000000A /* SettingsView.swift */,
-				A2000000000000000000000B /* TrackpadClickerApp.swift */,
+				A2000000000000000000000B /* TapDeckApp.swift */,
 			);
-			path = TrackpadClicker;
+			path = TapDeck;
 			sourceTree = "<group>";
 		};
 		A50000000000000000000004 /* Resources */ = {
@@ -142,7 +142,7 @@
 				A2000000000000000000000C /* GestureRecognizerTests.swift */,
 			);
 			name = Tests;
-			path = Tests/TrackpadClickerTests;
+			path = Tests/TapDeckTests;
 			sourceTree = "<group>";
 		};
 		A50000000000000000000006 /* Frameworks */ = {
@@ -158,7 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				A2000000000000000000000D /* TapDeck Dev.app */,
-				A2000000000000000000000E /* TrackpadClickerTests.xctest */,
+				A2000000000000000000000E /* TapDeckTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -166,9 +166,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A70000000000000000000001 /* TrackpadClickerDirect */ = {
+		A70000000000000000000001 /* TapDeck */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AB0000000000000000000002 /* Build configuration list for PBXNativeTarget "TrackpadClickerDirect" */;
+			buildConfigurationList = AB0000000000000000000002 /* Build configuration list for PBXNativeTarget "TapDeck" */;
 			buildPhases = (
 				A60000000000000000000001 /* Sources */,
 				A40000000000000000000001 /* Frameworks */,
@@ -178,14 +178,14 @@
 			);
 			dependencies = (
 			);
-			name = TrackpadClickerDirect;
-			productName = TrackpadClicker;
+			name = TapDeck;
+			productName = TapDeck;
 			productReference = A2000000000000000000000D /* TapDeck Dev.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A70000000000000000000002 /* TrackpadClickerTests */ = {
+		A70000000000000000000002 /* TapDeckTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AB0000000000000000000003 /* Build configuration list for PBXNativeTarget "TrackpadClickerTests" */;
+			buildConfigurationList = AB0000000000000000000003 /* Build configuration list for PBXNativeTarget "TapDeckTests" */;
 			buildPhases = (
 				A60000000000000000000003 /* Sources */,
 				A40000000000000000000002 /* Frameworks */,
@@ -196,9 +196,9 @@
 			dependencies = (
 				A90000000000000000000001 /* PBXTargetDependency */,
 			);
-			name = TrackpadClickerTests;
-			productName = TrackpadClickerTests;
-			productReference = A2000000000000000000000E /* TrackpadClickerTests.xctest */;
+			name = TapDeckTests;
+			productName = TapDeckTests;
+			productReference = A2000000000000000000000E /* TapDeckTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -234,8 +234,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A70000000000000000000001 /* TrackpadClickerDirect */,
-				A70000000000000000000002 /* TrackpadClickerTests */,
+				A70000000000000000000001 /* TapDeck */,
+				A70000000000000000000002 /* TapDeckTests */,
 			);
 		};
 /* End PBXProject section */
@@ -276,7 +276,7 @@
 				A10000000000000000000008 /* MultitouchBridge.swift in Sources */,
 				A10000000000000000000009 /* PreferencesStore.swift in Sources */,
 				A1000000000000000000000A /* SettingsView.swift in Sources */,
-				A1000000000000000000000B /* TrackpadClickerApp.swift in Sources */,
+				A1000000000000000000000B /* TapDeckApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,7 +293,7 @@
 /* Begin PBXTargetDependency section */
 		A90000000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A70000000000000000000001 /* TrackpadClickerDirect */;
+			target = A70000000000000000000001 /* TapDeck */;
 			targetProxy = A30000000000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -413,7 +413,7 @@
 				DEVELOPMENT_TEAM = AWP2538424;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
-				EXECUTABLE_NAME = TrackpadClicker;
+				EXECUTABLE_NAME = TapDeck;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -422,8 +422,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker.debug;
-				PRODUCT_MODULE_NAME = TrackpadClicker;
+				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.tapdeck.debug;
+				PRODUCT_MODULE_NAME = TapDeck;
 				PRODUCT_NAME = "TapDeck Dev";
 				REGISTER_APP = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -442,7 +442,7 @@
 				DEVELOPMENT_TEAM = AWP2538424;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
-				EXECUTABLE_NAME = TrackpadClicker;
+				EXECUTABLE_NAME = TapDeck;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Resources/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -451,8 +451,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker;
-				PRODUCT_MODULE_NAME = TrackpadClicker;
+				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.tapdeck;
+				PRODUCT_MODULE_NAME = TapDeck;
 				PRODUCT_NAME = TapDeck;
 				REGISTER_APP = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -471,10 +471,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.tapdeck.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TapDeck Dev.app/Contents/MacOS/TrackpadClicker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TapDeck Dev.app/Contents/MacOS/TapDeck";
 			};
 			name = Debug;
 		};
@@ -490,10 +490,10 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.tapdeck.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TapDeck.app/Contents/MacOS/TrackpadClicker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TapDeck.app/Contents/MacOS/TapDeck";
 			};
 			name = Release;
 		};
@@ -509,7 +509,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB0000000000000000000002 /* Build configuration list for PBXNativeTarget "TrackpadClickerDirect" */ = {
+		AB0000000000000000000002 /* Build configuration list for PBXNativeTarget "TapDeck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000003 /* Debug */,
@@ -518,7 +518,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB0000000000000000000003 /* Build configuration list for PBXNativeTarget "TrackpadClickerTests" */ = {
+		AB0000000000000000000003 /* Build configuration list for PBXNativeTarget "TapDeckTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000005 /* Debug */,

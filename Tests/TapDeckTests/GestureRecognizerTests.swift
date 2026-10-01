@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 import Testing
-@testable import TrackpadClicker
+@testable import TapDeck
 
 struct GestureRecognizerTests {
     private func frame(_ time: Double, count: Int, x: Float = 0.5, pressure: Float = 0.4) -> TouchFrame {
@@ -352,7 +352,7 @@ struct GestureRecognizerTests {
     @Test
     @MainActor
     func gestureBindingsPersistIndependently() throws {
-        let suiteName = "TrackpadClickerTests.\(UUID().uuidString)"
+        let suiteName = "TapDeckTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -381,7 +381,7 @@ struct GestureRecognizerTests {
     @Test
     @MainActor
     func existingPreferencesLoseRemovedLongTouchBinding() throws {
-        let suiteName = "TrackpadClickerTests.\(UUID().uuidString)"
+        let suiteName = "TapDeckTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
@@ -396,7 +396,7 @@ struct GestureRecognizerTests {
     @Test
     @MainActor
     func originalTapDurationMigratesToForgivingDefault() throws {
-        let suiteName = "TrackpadClickerTests.\(UUID().uuidString)"
+        let suiteName = "TapDeckTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
 

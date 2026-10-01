@@ -101,7 +101,7 @@ xcodebuild \
 
 After the settings window is closed, gesture recognition continues in the background. Reopen the app from Finder or Spotlight to change its settings. To stop it completely, open **Advanced Settings > More > Quit App**.
 
-Debug builds are isolated from the installed release app. They use the name `TapDeck Dev` and the bundle identifier `app.peterlee.trackpadclicker.debug`; Launch at Login is intentionally unavailable in debug builds. Release builds use `TapDeck` and `app.peterlee.trackpadclicker`.
+Debug builds are isolated from the installed release app. They use the name `TapDeck Dev` and the bundle identifier `app.peterlee.tapdeck.debug`; Launch at Login is intentionally unavailable in debug builds. Release builds use `TapDeck` and `app.peterlee.tapdeck`.
 
 ## Localization
 
@@ -115,7 +115,7 @@ Touch processing is event-driven. While recognition is enabled, a lightweight he
 
 ## Tests
 
-The Xcode project contains the native app target and a `TrackpadClickerTests` unit-test target. `Package.swift` is included for command-line development.
+The Xcode project contains the native app target and a `TapDeckTests` unit-test target. `Package.swift` is included for command-line development.
 
 ```zsh
 swift test

@@ -17,7 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A70000000000000000000001"
                BuildableName = "TapDeck.app"
-               BlueprintName = "TrackpadClickerDirect"
+               BlueprintName = "TapDeck"
                ReferencedContainer = "container:TapDeck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -30,8 +30,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A70000000000000000000002"
-               BuildableName = "TrackpadClickerTests.xctest"
-               BlueprintName = "TrackpadClickerTests"
+               BuildableName = "TapDeckTests.xctest"
+               BlueprintName = "TapDeckTests"
                ReferencedContainer = "container:TapDeck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -50,8 +50,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A70000000000000000000002"
-               BuildableName = "TrackpadClickerTests.xctest"
-               BlueprintName = "TrackpadClickerTests"
+               BuildableName = "TapDeckTests.xctest"
+               BlueprintName = "TapDeckTests"
                ReferencedContainer = "container:TapDeck.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -73,7 +73,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A70000000000000000000001"
             BuildableName = "TapDeck.app"
-            BlueprintName = "TrackpadClickerDirect"
+            BlueprintName = "TapDeck"
             ReferencedContainer = "container:TapDeck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -90,7 +90,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A70000000000000000000001"
             BuildableName = "TapDeck.app"
-            BlueprintName = "TrackpadClickerDirect"
+            BlueprintName = "TapDeck"
             ReferencedContainer = "container:TapDeck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
