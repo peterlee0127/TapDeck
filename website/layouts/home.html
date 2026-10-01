@@ -1,0 +1,71 @@
+{{ define "main" }}
+<section class="hero wrap" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <p class="overline">A UTILITY FOR macOS</p>
+    <h1 id="hero-title">Middle-click<br>with three<br> fingers.</h1>
+    <p class="intro">Open a link in a new tab. Close one when you’re done. All from the trackpad you’re already using.</p>
+    <a class="button" href="{{ site.Params.releases }}"><svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg> Download for macOS</a>
+    <p class="requirements">macOS 14 or later<br>Built-in trackpad or Apple Magic Trackpad</p>
+    <a class="source-link" href="{{ site.Params.repository }}#build-and-run">Or build it from source <span aria-hidden="true">↗</span></a>
+  </div>
+  <fieldset class="app-preview">
+    <legend class="sr-only">Explore the app screenshots</legend>
+    <div class="preview-controls">
+      <label><input id="screen-gestures" type="radio" name="screenshot" checked><span>Gestures</span></label>
+      <label><input id="screen-test" type="radio" name="screenshot"><span>Test</span></label>
+      <label><input id="screen-advanced" type="radio" name="screenshot"><span>Advanced</span></label>
+      <span class="preview-label" aria-hidden="true">THE ACTUAL APP ↓</span>
+    </div>
+    {{ range slice
+      (dict "id" "gestures" "image" "gesture-settings.png" "alt" "TapDeck settings. Three-finger tap and click are enabled and assigned to Middle Click." "caption" "Enable a gesture. Pick its action. That’s the whole setup.")
+      (dict "id" "test" "image" "gesture-test.png" "alt" "The Gesture Test page, with a live trackpad contact visualizer and recognition results." "caption" "Check what the app recognizes without running any actions.")
+      (dict "id" "advanced" "image" "advanced-settings.png" "alt" "Advanced settings for tap duration, movement tolerance, haptic feedback, and Launch at Login." "caption" "Adjust how long a tap lasts and how much your fingers can move.")
+    }}
+      {{ $source := resources.Get (printf "images/screenshots/%s" .image) }}
+      {{ $large := $source.Resize "1600x webp q85" }}
+      {{ $small := $source.Resize "800x webp q85" }}
+      <figure class="app-shot shot-{{ .id }}">
+        <a class="screenshot-link" href="{{ $large.RelPermalink }}" aria-label="View full-size {{ .id }} screenshot"><img src="{{ $large.RelPermalink }}" srcset="{{ $small.RelPermalink }} 800w, {{ $large.RelPermalink }} 1600w" sizes="(max-width: 800px) 92vw, 65vw" width="{{ $large.Width }}" height="{{ $large.Height }}" {{ if eq .id "gestures" }}fetchpriority="high"{{ else }}loading="lazy"{{ end }} alt="{{ .alt }}"></a>
+        <figcaption>{{ .caption }}</figcaption>
+      </figure>
+    {{ end }}
+    <p class="screenshot-note">English development build shown. Accessibility permission is not enabled in the screenshots.</p>
+  </fieldset>
+</section>
+
+<div class="product-notes wrap"><p>Written in Swift & SwiftUI.</p><p>No network requests or analytics.</p><p>No Dock or menu bar icon.</p></div>
+
+<section class="defaults wrap ruled-section" id="features" aria-labelledby="defaults-title">
+  <div class="section-intro"><p class="overline">GESTURES</p><h2 id="defaults-title">Start here.<br> Make it yours.</h2><p>These bindings work out of the box. Change each one to a mouse click, a workspace action, or an app you use every day.</p><p class="minor-note">Two-finger gestures start disabled, so your usual macOS controls stay familiar.</p></div>
+  <table class="gesture-table">
+    <caption class="sr-only">Enabled gestures and their default actions</caption>
+    <thead><tr><th scope="col">Gesture</th><th scope="col">Default action</th></tr></thead>
+    <tbody>
+      <tr><th scope="row"><span class="finger-count" aria-hidden="true">•••</span>Three-finger tap or click</th><td>Middle Click<small>Open links in a new tab.</small></td></tr>
+      <tr><th scope="row"><span class="finger-count" aria-hidden="true">••••</span>Four-finger tap</th><td>Mission Control<small>See your open windows.</small></td></tr>
+      <tr><th scope="row"><span class="finger-count" aria-hidden="true">•</span>One-finger Force Click</th><td>Quick Look<small>Preview the selected file.</small></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="setup wrap ruled-section" id="setup" aria-labelledby="setup-title">
+  <div class="section-intro"><p class="overline">GETTING STARTED</p><h2 id="setup-title">Install it.<br> Then close it.</h2><p>Once you’ve chosen your gestures, close the settings window. The app keeps working in the background.</p><p>Need to change something? Open TapDeck again from Finder or Spotlight.</p></div>
+  <ol class="setup-steps">
+    <li><h3>Move the app to Applications.</h3><p>Download the DMG from <a href="{{ site.Params.releases }}">GitHub Releases</a>, open it, and drag TapDeck into your Applications folder.</p></li>
+    <li><h3>Allow Accessibility access.</h3><p>Open the app, then enable it in System Settings → Privacy & Security → Accessibility. This lets it send your chosen mouse clicks and keyboard shortcuts.</p></li>
+    <li><h3>Try a three-finger tap.</h3><p>Use the Test page to check recognition first. Test mode shows the result without performing the action.</p></li>
+  </ol>
+</section>
+
+<section class="faq wrap ruled-section" aria-labelledby="faq-title">
+  <div class="section-intro"><p class="overline">A FEW DETAILS</p><h2 id="faq-title">Before you install.</h2><p>Something not covered here?<br><a href="{{ site.Params.repository }}/issues">Open an issue on GitHub <span aria-hidden="true">↗</span></a></p></div>
+  <div class="faq-list">
+    <details><summary>Which trackpads work?<span aria-hidden="true">+</span></summary><p>A built-in Mac trackpad or Apple Magic Trackpad, on macOS 14 Sonoma or later. Multi-finger physical clicks need pressure support. One-finger Force Click requires a Force Touch trackpad.</p></details>
+    <details><summary>Can I map a gesture to an app?<span aria-hidden="true">+</span></summary><p>Yes. Select “Open or Switch to App” in a gesture’s action menu, then choose an application. TapDeck opens it if needed, or brings its windows forward if it is already running. You can also choose Left, Middle, or Right Click, Quick Look, Mission Control, App Exposé, or Show Desktop.</p></details>
+    <details><summary>What if three fingers also trigger Look Up?<span aria-hidden="true">+</span></summary><p>Turn off “Look up & data detectors” in macOS Trackpad settings, or disable the three-finger tap in TapDeck. Each gesture can be enabled or disabled independently.</p></details>
+    <details><summary>Does anything leave my Mac?<span aria-hidden="true">+</span></summary><p>No. Touch processing, preferences, and optional activity logs stay on your Mac. The app has no networking code, analytics, or cloud dependency. Activity logging is off by default.</p></details>
+    <details><summary>How do I quit the background app?<span aria-hidden="true">+</span></summary><p>Reopen TapDeck from Finder or Spotlight, then choose Advanced Settings → More → Quit App.</p></details>
+    <details><summary>Why isn’t it on the Mac App Store?<span aria-hidden="true">+</span></summary><p>Global multi-finger recognition uses Apple’s private MultitouchSupport framework, so the app is distributed directly through GitHub. macOS updates can affect recognition; check the release notes when updating your system.</p></details>
+  </div>
+</section>
+{{ end }}

@@ -50,7 +50,7 @@
 		A2000000000000000000000A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2000000000000000000000B /* TrackpadClickerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackpadClickerApp.swift; sourceTree = "<group>"; };
 		A2000000000000000000000C /* GestureRecognizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerTests.swift; sourceTree = "<group>"; };
-		A2000000000000000000000D /* Trackpad Clicker Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Trackpad Clicker Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000000000000000000000D /* TapDeck Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TapDeck Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000000000000000000000E /* TrackpadClickerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackpadClickerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000000000000000000000F /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		A20000000000000000000010 /* AppIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon.png; sourceTree = "<group>"; };
@@ -157,7 +157,7 @@
 		A50000000000000000000007 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A2000000000000000000000D /* Trackpad Clicker Dev.app */,
+				A2000000000000000000000D /* TapDeck Dev.app */,
 				A2000000000000000000000E /* TrackpadClickerTests.xctest */,
 			);
 			name = Products;
@@ -180,7 +180,7 @@
 			);
 			name = TrackpadClickerDirect;
 			productName = TrackpadClicker;
-			productReference = A2000000000000000000000D /* Trackpad Clicker Dev.app */;
+			productReference = A2000000000000000000000D /* TapDeck Dev.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A70000000000000000000002 /* TrackpadClickerTests */ = {
@@ -220,7 +220,7 @@
 					};
 				};
 			};
-			buildConfigurationList = AB0000000000000000000001 /* Build configuration list for PBXProject "TrackpadClicker" */;
+			buildConfigurationList = AB0000000000000000000001 /* Build configuration list for PBXProject "TapDeck" */;
 			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -424,7 +424,7 @@
 				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker.debug;
 				PRODUCT_MODULE_NAME = TrackpadClicker;
-				PRODUCT_NAME = "Trackpad Clicker Dev";
+				PRODUCT_NAME = "TapDeck Dev";
 				REGISTER_APP = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -453,7 +453,7 @@
 				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker;
 				PRODUCT_MODULE_NAME = TrackpadClicker;
-				PRODUCT_NAME = "Trackpad Clicker";
+				PRODUCT_NAME = TapDeck;
 				REGISTER_APP = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -474,7 +474,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trackpad Clicker Dev.app/Contents/MacOS/TrackpadClicker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TapDeck Dev.app/Contents/MacOS/TrackpadClicker";
 			};
 			name = Debug;
 		};
@@ -493,14 +493,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.trackpadclicker.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trackpad Clicker.app/Contents/MacOS/TrackpadClicker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TapDeck.app/Contents/MacOS/TrackpadClicker";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AB0000000000000000000001 /* Build configuration list for PBXProject "TrackpadClicker" */ = {
+		AB0000000000000000000001 /* Build configuration list for PBXProject "TapDeck" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000001 /* Debug */,

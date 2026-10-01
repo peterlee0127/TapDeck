@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A70000000000000000000001"
-               BuildableName = "Trackpad Clicker.app"
+               BuildableName = "TapDeck.app"
                BlueprintName = "TrackpadClickerDirect"
-               ReferencedContainer = "container:TrackpadClicker.xcodeproj">
+               ReferencedContainer = "container:TapDeck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -32,7 +32,7 @@
                BlueprintIdentifier = "A70000000000000000000002"
                BuildableName = "TrackpadClickerTests.xctest"
                BlueprintName = "TrackpadClickerTests"
-               ReferencedContainer = "container:TrackpadClicker.xcodeproj">
+               ReferencedContainer = "container:TapDeck.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -52,7 +52,7 @@
                BlueprintIdentifier = "A70000000000000000000002"
                BuildableName = "TrackpadClickerTests.xctest"
                BlueprintName = "TrackpadClickerTests"
-               ReferencedContainer = "container:TrackpadClicker.xcodeproj">
+               ReferencedContainer = "container:TapDeck.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A70000000000000000000001"
-            BuildableName = "Trackpad Clicker.app"
+            BuildableName = "TapDeck.app"
             BlueprintName = "TrackpadClickerDirect"
-            ReferencedContainer = "container:TrackpadClicker.xcodeproj">
+            ReferencedContainer = "container:TapDeck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -89,9 +89,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A70000000000000000000001"
-            BuildableName = "Trackpad Clicker.app"
+            BuildableName = "TapDeck.app"
             BlueprintName = "TrackpadClickerDirect"
-            ReferencedContainer = "container:TrackpadClicker.xcodeproj">
+            ReferencedContainer = "container:TapDeck.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

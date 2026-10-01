@@ -483,13 +483,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quit Trackpad Clicker"
+            "value" : "Quit TapDeck"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "結束 Trackpad Clicker"
+            "value" : "結束 TapDeck"
           }
         }
       }
@@ -1962,13 +1962,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quit Trackpad Clicker"
+            "value" : "Quit TapDeck"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "結束 Trackpad Clicker"
+            "value" : "結束 TapDeck"
           }
         }
       }
@@ -2693,13 +2693,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trackpad Clicker Settings"
+            "value" : "TapDeck Settings"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trackpad Clicker 設定"
+            "value" : "TapDeck 設定"
           }
         }
       }

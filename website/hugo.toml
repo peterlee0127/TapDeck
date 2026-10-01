@@ -1,0 +1,23 @@
+baseURL = '/'
+locale = 'en-US'
+title = 'TapDeck — Custom trackpad actions for macOS'
+disableKinds = ['taxonomy', 'term', 'RSS']
+enableRobotsTXT = true
+
+[params]
+description = 'Map trackpad gestures to clicks, macOS actions, and app shortcuts. A native macOS utility with a live gesture test and local processing.'
+repository = 'https://github.com/peterlee0127/MacOS-clicker'
+releases = 'https://github.com/peterlee0127/MacOS-clicker/releases'
+
+[module]
+  [module.hugoVersion]
+  min = '0.158.0'
+  [[module.mounts]]
+  source = 'assets'
+  target = 'assets'
+  [[module.mounts]]
+  source = '../Resources/AppIcon.png'
+  target = 'assets/images/app-icon.png'
+  [[module.mounts]]
+  source = '../Documentation/Screenshots'
+  target = 'assets/images/screenshots'

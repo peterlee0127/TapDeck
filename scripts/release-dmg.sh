@@ -13,10 +13,10 @@ set -euo pipefail
 
 SCRIPT_DIR="${0:A:h}"
 ROOT_DIR="${SCRIPT_DIR:h}"
-PROJECT_PATH="$ROOT_DIR/TrackpadClicker.xcodeproj"
-SCHEME="Trackpad Clicker (Direct)"
-PRODUCT_NAME="Trackpad Clicker"
-ASSET_BASENAME="Trackpad-Clicker"
+PROJECT_PATH="$ROOT_DIR/TapDeck.xcodeproj"
+SCHEME="TapDeck (Direct)"
+PRODUCT_NAME="TapDeck"
+ASSET_BASENAME="TapDeck"
 TEAM_ID="${TRACKPAD_CLICKER_TEAM_ID:-}"
 DEVELOPER_ID_APPLICATION="${TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION:-}"
 NOTARY_PROFILE="${TRACKPAD_CLICKER_NOTARY_PROFILE:-}"
@@ -87,9 +87,9 @@ if ! security find-identity -v -p codesigning | /usr/bin/grep -F \
   die "Developer ID Application signing identity was not found: $DEVELOPER_ID_APPLICATION"
 fi
 
-WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/trackpad-clicker-release.XXXXXX")"
+WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/tapdeck-release.XXXXXX")"
 trap 'rm -rf "$WORK_DIR"' EXIT
-ARCHIVE_PATH="$WORK_DIR/TrackpadClicker.xcarchive"
+ARCHIVE_PATH="$WORK_DIR/TapDeck.xcarchive"
 APP_PATH="$ARCHIVE_PATH/Products/Applications/$PRODUCT_NAME.app"
 DMG_STAGE="$WORK_DIR/dmg-root"
 

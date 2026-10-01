@@ -19,7 +19,7 @@ struct MenuBarView: View {
                 .frame(width: 32, height: 32)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(verbatim: "Trackpad Clicker")
+                    Text(verbatim: "TapDeck")
                         .font(.headline)
                     HStack(spacing: 5) {
                         Circle()
@@ -56,7 +56,7 @@ struct MenuBarView: View {
             Button(role: .destructive) {
                 NSApp.terminate(nil)
             } label: {
-                Label(L10n.string("menu.quit", "Quit Trackpad Clicker"), systemImage: "power")
+                Label(L10n.string("menu.quit", "Quit TapDeck"), systemImage: "power")
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .keyboardShortcut("q")

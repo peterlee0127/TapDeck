@@ -15,7 +15,7 @@ Create a local `notarytool` Keychain profile. The command prompts
 interactively when credential options are not supplied:
 
 ```zsh
-xcrun notarytool store-credentials "trackpad-clicker-notary"
+xcrun notarytool store-credentials "tapdeck-notary"
 ```
 
 An App Store Connect API key is also supported by `notarytool` if preferred.
@@ -28,7 +28,7 @@ for the current shell session:
 ```zsh
 security find-identity -v -p codesigning
 export TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION='Developer ID Application: …'
-export TRACKPAD_CLICKER_NOTARY_PROFILE='trackpad-clicker-notary'
+export TRACKPAD_CLICKER_NOTARY_PROFILE='tapdeck-notary'
 scripts/release-dmg.sh --version 0.3.3
 ```
 
@@ -36,8 +36,8 @@ The version flag is optional and otherwise uses the Release target's
 `MARKETING_VERSION`. The script creates these GitHub Release assets:
 
 ```
-dist/Trackpad-Clicker-<version>.dmg
-dist/Trackpad-Clicker-<version>.dmg.sha256
+dist/TapDeck-<version>.dmg
+dist/TapDeck-<version>.dmg.sha256
 ```
 
 If the Xcode project needs a different signing team from its checked-in build

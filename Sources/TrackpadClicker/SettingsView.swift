@@ -125,7 +125,7 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
             } header: {
-                Text(verbatim: "Trackpad Clicker")
+                Text(verbatim: "TapDeck")
             }
         }
         .listStyle(.sidebar)
@@ -458,7 +458,7 @@ struct SettingsView: View {
                             showsRestoreDefaultsConfirmation = true
                         }
                         Divider()
-                        Button(L10n.string("advanced.quit", "Quit Trackpad Clicker"), role: .destructive) {
+                        Button(L10n.string("advanced.quit", "Quit TapDeck"), role: .destructive) {
                             NSApp.terminate(nil)
                         }
                     } label: {

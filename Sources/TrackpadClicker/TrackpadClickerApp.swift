@@ -195,7 +195,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             .environmentObject(model.coordinator)
         let window = NSWindow(contentViewController: NSHostingController(rootView: rootView))
         window.delegate = self
-        window.title = L10n.string("window.settings.title", "Trackpad Clicker Settings")
+        window.title = L10n.string("window.settings.title", "TapDeck Settings")
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.setContentSize(NSSize(width: 920, height: 740))
         window.minSize = NSSize(width: 760, height: 600)

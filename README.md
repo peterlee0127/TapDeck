@@ -1,8 +1,8 @@
-# Trackpad Clicker
+# TapDeck
 
-Trackpad Clicker is a native macOS utility that turns multi-finger trackpad gestures into mouse clicks, system actions, and app shortcuts. It is written in Swift and SwiftUI, runs quietly in the background, and processes all touch data locally.
+TapDeck is a native macOS utility that turns multi-finger trackpad gestures into mouse clicks, system actions, and app shortcuts. It is written in Swift and SwiftUI, runs quietly in the background, and processes all touch data locally.
 
-![Trackpad Clicker gesture settings](Documentation/Screenshots/gesture-settings.png)
+![TapDeck gesture settings](Documentation/Screenshots/gesture-settings.png)
 
 ## Highlights
 
@@ -40,13 +40,13 @@ Available actions:
 - Open or switch to a selected application
 - No Action
 
-When an application shortcut is selected, Trackpad Clicker launches the app if necessary or brings all of its windows forward when it is already running.
+When an application shortcut is selected, TapDeck launches the app if necessary or brings all of its windows forward when it is already running.
 
 ## Gesture Test
 
 The Test page visualizes current finger contact and reports every supported gesture in real time. Test mode suppresses configured actions, so recognition can be checked safely before a binding is enabled.
 
-![Trackpad Clicker Gesture Test](Documentation/Screenshots/gesture-test.png)
+![TapDeck Gesture Test](Documentation/Screenshots/gesture-test.png)
 
 Closing the settings window exits Test mode automatically.
 
@@ -54,9 +54,9 @@ Closing the settings window exits Test mode automatically.
 
 The optional in-app log records gesture recognition, requested actions, monitoring changes, reconnections, test-mode transitions, and sleep or wake events.
 
-![Trackpad Clicker Activity Log](Documentation/Screenshots/activity-log.png)
+![TapDeck Activity Log](Documentation/Screenshots/activity-log.png)
 
-Logging is off by default. When enabled, the app keeps up to 1,000 recent events in memory for the current session. Disabling logging stops new entries without deleting the existing list. **Copy All** exports the visible session log, while **Clear Log** removes it. An action request confirms only that Trackpad Clicker issued the command; it does not confirm that another application completed it.
+Logging is off by default. When enabled, the app keeps up to 1,000 recent events in memory for the current session. Disabling logging stops new entries without deleting the existing list. **Copy All** exports the visible session log, while **Clear Log** removes it. An action request confirms only that TapDeck issued the command; it does not confirm that another application completed it.
 
 ## Advanced Settings
 
@@ -70,7 +70,7 @@ Advanced Settings provides fine-grained recognition and maintenance controls:
 - **Reset Accessibility Permission** — clears a stale authorization entry and guides the user back to System Settings.
 - **More** — reconnect monitoring, restore defaults, or quit the background app.
 
-![Trackpad Clicker Advanced Settings](Documentation/Screenshots/advanced-settings.png)
+![TapDeck Advanced Settings](Documentation/Screenshots/advanced-settings.png)
 
 Sensitivity changes take effect immediately. The screenshots above were captured from the actual English debug build; the Accessibility notice is expected because the isolated documentation build was not granted system permission.
 
@@ -84,24 +84,24 @@ Sensitivity changes take effect immediately. The screenshots above were captured
 
 ## Build and Run
 
-1. Open `TrackpadClicker.xcodeproj` in Xcode.
-2. Select the **Trackpad Clicker (Direct)** scheme.
+1. Open `TapDeck.xcodeproj` in Xcode.
+2. Select the **TapDeck (Direct)** scheme.
 3. Build and run the app.
-4. Choose **Open System Settings** in the app, then enable Trackpad Clicker under **Privacy & Security > Accessibility**.
+4. Choose **Open System Settings** in the app, then enable TapDeck under **Privacy & Security > Accessibility**.
 
 The same debug build can be created from Terminal:
 
 ```zsh
 xcodebuild \
-  -project TrackpadClicker.xcodeproj \
-  -scheme 'Trackpad Clicker (Direct)' \
+  -project TapDeck.xcodeproj \
+  -scheme 'TapDeck (Direct)' \
   -sdk macosx \
   build
 ```
 
 After the settings window is closed, gesture recognition continues in the background. Reopen the app from Finder or Spotlight to change its settings. To stop it completely, open **Advanced Settings > More > Quit App**.
 
-Debug builds are isolated from the installed release app. They use the name `Trackpad Clicker Dev` and the bundle identifier `app.peterlee.trackpadclicker.debug`; Launch at Login is intentionally unavailable in debug builds. Release builds use `Trackpad Clicker` and `app.peterlee.trackpadclicker`.
+Debug builds are isolated from the installed release app. They use the name `TapDeck Dev` and the bundle identifier `app.peterlee.trackpadclicker.debug`; Launch at Login is intentionally unavailable in debug builds. Release builds use `TapDeck` and `app.peterlee.trackpadclicker`.
 
 ## Localization
 
@@ -123,7 +123,7 @@ swift test
 
 ## Technical Notes and Limitations
 
-Public macOS APIs do not expose global raw multi-finger trackpad data. Trackpad Clicker dynamically loads Apple's private `MultitouchSupport.framework` at runtime and uses public Core Graphics APIs to emit mouse and keyboard events. Consequently:
+Public macOS APIs do not expose global raw multi-finger trackpad data. TapDeck dynamically loads Apple's private `MultitouchSupport.framework` at runtime and uses public Core Graphics APIs to emit mouse and keyboard events. Consequently:
 
 - The app is intended for signed direct distribution, not the Mac App Store.
 - A macOS update may change private framework behavior; test each target macOS release before distribution.
@@ -132,4 +132,4 @@ Public macOS APIs do not expose global raw multi-finger trackpad data. Trackpad 
 
 ## Privacy
 
-All touch recognition, preferences, and optional activity logs remain on the Mac. Trackpad Clicker has no networking code, analytics, telemetry, or cloud dependency.
+All touch recognition, preferences, and optional activity logs remain on the Mac. TapDeck has no networking code, analytics, telemetry, or cloud dependency.
