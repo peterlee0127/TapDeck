@@ -37,7 +37,7 @@ class Page(HTMLParser):
 site = Path(__file__).resolve().parent
 for prefix in ("/", "/MacOS-clicker/"):
     base = f"https://preview.example{prefix}"
-    with TemporaryDirectory(prefix="trackpad-site-") as directory:
+    with TemporaryDirectory(prefix="tapdeck-site-") as directory:
         output = Path(directory)
         subprocess.run(
             ["hugo", "--source", str(site), "--destination", str(output),

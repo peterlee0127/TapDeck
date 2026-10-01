@@ -27,8 +27,8 @@ for the current shell session:
 
 ```zsh
 security find-identity -v -p codesigning
-export TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION='Developer ID Application: …'
-export TRACKPAD_CLICKER_NOTARY_PROFILE='tapdeck-notary'
+export TAPDECK_DEVELOPER_ID_APPLICATION='Developer ID Application: …'
+export TAPDECK_NOTARY_PROFILE='tapdeck-notary'
 scripts/release-dmg.sh --version 0.3.3
 ```
 
@@ -41,8 +41,8 @@ dist/TapDeck-<version>.dmg.sha256
 ```
 
 If the Xcode project needs a different signing team from its checked-in build
-setting, set `TRACKPAD_CLICKER_TEAM_ID` in the execution environment. Do not
-commit that value.
+setting, set `TAPDECK_TEAM_ID` in the execution environment. Do not
+commit that value. Set `TAPDECK_OUTPUT_DIR` to override the default `dist/` output directory.
 
-`build-app.sh` is the development-only path: it uses an Apple Development
-certificate and is not suitable for public distribution.
+For a development build, use the Xcode build command in [README.md](README.md#build-and-run).
+Debug builds use Apple Development signing and are not suitable for public distribution.

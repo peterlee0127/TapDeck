@@ -72,7 +72,7 @@ Advanced Settings provides fine-grained recognition and maintenance controls:
 
 ![TapDeck Advanced Settings](Documentation/Screenshots/advanced-settings.png)
 
-Sensitivity changes take effect immediately. The screenshots above were captured from the actual English debug build; the Accessibility notice is expected because the isolated documentation build was not granted system permission.
+Sensitivity changes take effect immediately. The screenshots above were captured from the actual TapDeck 0.5.0 English debug build; the Accessibility notice is expected because the isolated documentation build was not granted system permission.
 
 ## Requirements
 

@@ -2,12 +2,12 @@
 # Build a Developer ID-signed, notarized DMG suitable for a GitHub Release.
 #
 # Required environment variables:
-#   TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION
-#   TRACKPAD_CLICKER_NOTARY_PROFILE
+#   TAPDECK_DEVELOPER_ID_APPLICATION
+#   TAPDECK_NOTARY_PROFILE
 #
 # Optional environment variables:
-#   TRACKPAD_CLICKER_TEAM_ID       (only needed to override the Xcode project setting)
-#   TRACKPAD_CLICKER_OUTPUT_DIR    (defaults to ./dist)
+#   TAPDECK_TEAM_ID       (only needed to override the Xcode project setting)
+#   TAPDECK_OUTPUT_DIR    (defaults to ./dist)
 
 set -euo pipefail
 
@@ -17,10 +17,10 @@ PROJECT_PATH="$ROOT_DIR/TapDeck.xcodeproj"
 SCHEME="TapDeck (Direct)"
 PRODUCT_NAME="TapDeck"
 ASSET_BASENAME="TapDeck"
-TEAM_ID="${TRACKPAD_CLICKER_TEAM_ID:-}"
-DEVELOPER_ID_APPLICATION="${TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION:-}"
-NOTARY_PROFILE="${TRACKPAD_CLICKER_NOTARY_PROFILE:-}"
-OUTPUT_DIR="${TRACKPAD_CLICKER_OUTPUT_DIR:-$ROOT_DIR/dist}"
+TEAM_ID="${TAPDECK_TEAM_ID:-}"
+DEVELOPER_ID_APPLICATION="${TAPDECK_DEVELOPER_ID_APPLICATION:-}"
+NOTARY_PROFILE="${TAPDECK_NOTARY_PROFILE:-}"
+OUTPUT_DIR="${TAPDECK_OUTPUT_DIR:-$ROOT_DIR/dist}"
 VERSION_OVERRIDE=""
 
 usage() {
@@ -32,9 +32,9 @@ Application certificate, submits the DMG to Apple notary service, staples its
 ticket, and writes the final DMG plus a SHA-256 checksum to dist/.
 
 Required environment variables:
-  TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION
+  TAPDECK_DEVELOPER_ID_APPLICATION
       The Developer ID Application certificate subject from your Keychain.
-  TRACKPAD_CLICKER_NOTARY_PROFILE
+  TAPDECK_NOTARY_PROFILE
       A notarytool keychain profile created with `xcrun notarytool
       store-credentials`.
 
@@ -72,9 +72,9 @@ done
 
 [[ -d "$PROJECT_PATH" ]] || die "Xcode project not found: $PROJECT_PATH"
 [[ -n "$DEVELOPER_ID_APPLICATION" ]] || die \
-  "Set TRACKPAD_CLICKER_DEVELOPER_ID_APPLICATION to a Developer ID Application certificate."
+  "Set TAPDECK_DEVELOPER_ID_APPLICATION to a Developer ID Application certificate."
 [[ -n "$NOTARY_PROFILE" ]] || die \
-  "Set TRACKPAD_CLICKER_NOTARY_PROFILE to a notarytool keychain profile."
+  "Set TAPDECK_NOTARY_PROFILE to a notarytool keychain profile."
 
 for tool in xcodebuild xcrun codesign security hdiutil ditto shasum; do
   require_command "$tool"

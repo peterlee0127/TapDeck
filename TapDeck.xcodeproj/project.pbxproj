@@ -421,7 +421,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.4.0;
+				MARKETING_VERSION = 0.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.tapdeck.debug;
 				PRODUCT_MODULE_NAME = TapDeck;
 				PRODUCT_NAME = "TapDeck Dev";
@@ -450,7 +450,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.4.0;
+				MARKETING_VERSION = 0.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.peterlee.tapdeck;
 				PRODUCT_MODULE_NAME = TapDeck;
 				PRODUCT_NAME = TapDeck;
