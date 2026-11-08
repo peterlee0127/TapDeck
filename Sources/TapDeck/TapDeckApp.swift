@@ -16,8 +16,8 @@ final class AppModel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
-    private var settingsWindow: NSWindow?
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    let menuBar = MenuBarController()
     private var launchedAsLoginItem = false
     private var handledInitialOpenApplicationEvent = false
     private var wakeRecoveryTask: Task<Void, Never>?
@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         NSApp.setActivationPolicy(.accessory)
         observeWorkspacePowerEvents()
         AppModel.shared.coordinator.refresh()
+        menuBar.start { [weak self] in self?.showSettings() }
 #if DEBUG
         // Xcode launches the executable directly and may not send the Open
         // Application Apple event used by Finder and LaunchServices.
@@ -177,31 +178,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func showSettings() {
         DispatchQueue.main.async {
-            let window = self.settingsWindow ?? self.makeSettingsWindow()
-            self.settingsWindow = window
-            window.makeKeyAndOrderFront(nil)
+            // Finder and the status menu use the same command as Command-Comma.
+            guard let menu = NSApp.mainMenu?.items.first?.submenu,
+                  let index = menu.items.firstIndex(where: {
+                      $0.keyEquivalent == "," && $0.keyEquivalentModifierMask.contains(.command)
+                  }) else { return }
+            NSApp.setActivationPolicy(.regular)
+            menu.performActionForItem(at: index)
             NSApp.activate(ignoringOtherApps: true)
         }
-    }
-
-    func windowWillClose(_ notification: Notification) {
-        AppModel.shared.coordinator.setTesting(false)
-    }
-
-    private func makeSettingsWindow() -> NSWindow {
-        let model = AppModel.shared
-        let rootView = SettingsView()
-            .environmentObject(model.preferences)
-            .environmentObject(model.coordinator)
-        let window = NSWindow(contentViewController: NSHostingController(rootView: rootView))
-        window.delegate = self
-        window.title = L10n.string("window.settings.title", "TapDeck Settings")
-        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-        window.setContentSize(NSSize(width: 920, height: 740))
-        window.minSize = NSSize(width: 760, height: 600)
-        window.isReleasedWhenClosed = false
-        window.center()
-        return window
     }
 }
 
@@ -212,10 +197,11 @@ struct TapDeckApp: App {
     var body: some Scene {
         Settings {
             SettingsView()
+                .environmentObject(appDelegate.menuBar)
                 .environmentObject(AppModel.shared.preferences)
                 .environmentObject(AppModel.shared.coordinator)
         }
-        .defaultSize(width: 920, height: 740)
+        .defaultSize(width: 680, height: 640)
         .windowResizability(.contentMinSize)
     }
 }

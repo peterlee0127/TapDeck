@@ -12,7 +12,7 @@ TapDeck is a native macOS utility that turns multi-finger trackpad gestures into
 - Includes a live Gesture Test that never runs the configured actions.
 - Provides adjustable tap duration, movement tolerance, and haptic feedback.
 - Recovers monitoring after sleep, device disconnection, or an interrupted event monitor.
-- Runs without a Dock, Command-Tab, or menu bar icon after the settings window is closed.
+- Runs without a Dock or Command-Tab icon after the settings window closes, with an optional menu bar icon.
 - Supports English and Traditional Chinese, following the macOS language preference.
 - Contains no networking, analytics, advertising, or telemetry.
 
@@ -58,21 +58,20 @@ The optional in-app log records gesture recognition, requested actions, monitori
 
 Logging is off by default. When enabled, the app keeps up to 1,000 recent events in memory for the current session. Disabling logging stops new entries without deleting the existing list. **Copy All** exports the visible session log, while **Clear Log** removes it. An action request confirms only that TapDeck issued the command; it does not confirm that another application completed it.
 
-## Advanced Settings
+## Settings
 
-Advanced Settings provides fine-grained recognition and maintenance controls:
+The settings window groups related controls into four pages:
 
-- **Maximum Tap Duration** — the longest allowed contact before a touch stops qualifying as a tap.
-- **Movement Tolerance** — the amount of finger movement permitted during a tap.
-- **Haptic Feedback** — one tactile confirmation after a gesture is recognized.
-- **Launch at Login** — starts the signed release app automatically after login.
-- **Open Trackpad Settings** — opens the relevant macOS settings pane.
-- **Reset Accessibility Permission** — clears a stale authorization entry and guides the user back to System Settings.
-- **More** — reconnect monitoring, restore defaults, or quit the background app.
+- **General** — enable recognition, show the menu bar icon, launch at login, and enable haptic feedback.
+- **Gestures** — configure each gesture and adjust maximum tap duration and movement tolerance.
+- **Test** — visualize touch input and check recognition without running configured actions.
+- **Diagnostics** — inspect permissions, reconnect monitoring, review the activity log, reset Accessibility permission, or restore defaults.
 
-![TapDeck Advanced Settings](Documentation/Screenshots/advanced-settings.png)
+Changes take effect immediately. Open Settings with Command-Comma, or reopen TapDeck from Finder or Spotlight. The window remembers the last settings page; closing it always exits Test mode. Choose **TapDeck > Quit TapDeck** (Command-Q) to stop the background app.
 
-Sensitivity changes take effect immediately. The screenshots above were captured from the actual TapDeck 0.5.0 English debug build; the Accessibility notice is expected because the isolated documentation build was not granted system permission.
+The menu bar icon is shown by default and offers gesture recognition, Settings, and Quit. Choose **Hide Menu Bar Icon** to remove it while keeping TapDeck running. To bring it back, open TapDeck from Finder or Spotlight and turn on **General → Show in Menu Bar**.
+
+The screenshots above show the previous 0.5.0 layout and will be refreshed for the reorganized settings interface.
 
 ## Requirements
 
@@ -99,7 +98,7 @@ xcodebuild \
   build
 ```
 
-After the settings window is closed, gesture recognition continues in the background. Reopen the app from Finder or Spotlight to change its settings. To stop it completely, open **Advanced Settings > More > Quit App**.
+After the settings window is closed, gesture recognition continues in the background. Reopen the app from Finder or Spotlight to change its settings. To stop it completely, choose **TapDeck > Quit TapDeck** (Command-Q).
 
 Debug builds are isolated from the installed release app. They use the name `TapDeck Dev` and the bundle identifier `app.peterlee.tapdeck.debug`; Launch at Login is intentionally unavailable in debug builds. Release builds use `TapDeck` and `app.peterlee.tapdeck`.
 

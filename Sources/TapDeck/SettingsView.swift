@@ -1,4 +1,5 @@
 import AppKit
+import QuartzCore
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -7,64 +8,98 @@ struct SettingsView: View {
     @EnvironmentObject private var preferences: PreferencesStore
     @EnvironmentObject private var coordinator: GestureCoordinator
 
-    @State private var showsAdvancedSettings = false
-    @State private var selectedPage = SettingsPage.settings
+    @EnvironmentObject private var menuBar: MenuBarController
+
+    @AppStorage("settings.selectedPage") private var selectedPage = SettingsPage.settings
+    @State private var settingsWindow: NSWindow?
     @State private var showsPermissionResetConfirmation = false
     @State private var showsRestoreDefaultsConfirmation = false
     @State private var permissionResetErrorMessage: String?
 
     private enum SettingsPage: String, CaseIterable, Hashable, Identifiable {
+        case general
         case settings
         case test
-        case logs
+        case diagnostics
 
         var id: Self { self }
 
-        var title: String {
+        var windowHeight: CGFloat {
             switch self {
-            case .settings: L10n.string("navigation.gestures", "Gestures")
-            case .test: L10n.string("navigation.test", "Test")
-            case .logs: L10n.string("navigation.activity_log", "Activity Log")
+            case .general: 330
+            case .settings, .test, .diagnostics: 680
             }
         }
 
-        var subtitle: String {
+        var title: String {
             switch self {
-            case .settings: L10n.string("navigation.gestures.subtitle", "Configure gestures and actions")
-            case .test: L10n.string("navigation.test.subtitle", "Verify recognition in real time")
-            case .logs: L10n.string("navigation.activity_log.subtitle", "Inspect monitoring and action events")
+            case .general: L10n.string("navigation.general", "General")
+            case .settings: L10n.string("navigation.gestures", "Gestures")
+            case .test: L10n.string("navigation.test", "Test")
+            case .diagnostics: L10n.string("navigation.diagnostics", "Diagnostics")
             }
         }
 
         var symbol: String {
             switch self {
+            case .general: "gearshape"
             case .settings: "hand.tap"
             case .test: "waveform.path.ecg"
-            case .logs: "list.bullet.rectangle"
+            case .diagnostics: "stethoscope"
             }
         }
     }
 
     var body: some View {
-        NavigationSplitView {
-            sidebar
-        } detail: {
-            detail
+        TabView(selection: $selectedPage) {
+            generalPage
+                .tabItem { tabLabel(.general) }
+                .tag(SettingsPage.general)
+            settingsPage
+                .tabItem { tabLabel(.settings) }
+                .tag(SettingsPage.settings)
+            testPage
+                .tabItem { tabLabel(.test) }
+                .tag(SettingsPage.test)
+            diagnosticsPage
+                .tabItem { tabLabel(.diagnostics) }
+                .tag(SettingsPage.diagnostics)
         }
-        .navigationSplitViewStyle(.balanced)
-        .frame(minWidth: 760, minHeight: 600)
+        .frame(minWidth: 620, minHeight: 260)
+        .background {
+            SettingsWindowReader { window in
+                guard settingsWindow !== window else { return }
+                settingsWindow = window
+                if let window {
+                    resize(window, for: selectedPage, animate: false)
+                }
+            }
+            .frame(width: 0, height: 0)
+            .allowsHitTesting(false)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { notification in
+            guard let window = notification.object as? NSWindow, window === settingsWindow else { return }
+            if selectedPage == .test { selectedPage = .settings }
+            coordinator.setTesting(false)
+            NSApp.setActivationPolicy(.accessory)
+        }
         .onChange(of: selectedPage) { _, page in
             coordinator.setTesting(page == .test)
         }
-        .onAppear { coordinator.setTesting(selectedPage == .test) }
-        .onDisappear { coordinator.setTesting(false) }
-        .onChange(of: coordinator.isTesting) { _, testing in
-            if !testing && selectedPage == .test { selectedPage = .settings }
+        .task(id: selectedPage) {
+            // Let the native settings tab finish its layout before resizing the window.
+            await Task.yield()
+            guard !Task.isCancelled, let settingsWindow else { return }
+            resize(settingsWindow, for: selectedPage, animate: settingsWindow.isVisible && !reduceMotion)
         }
-        .confirmationDialog(
+        .onAppear {
+            NSApp.setActivationPolicy(.regular)
+            coordinator.setTesting(selectedPage == .test)
+        }
+        .onDisappear { coordinator.setTesting(false) }
+        .alert(
             L10n.string("dialog.reset_accessibility.title", "Reset Accessibility Permission?"),
-            isPresented: $showsPermissionResetConfirmation,
-            titleVisibility: .visible
+            isPresented: $showsPermissionResetConfirmation
         ) {
             Button(L10n.string("dialog.reset_accessibility.action", "Reset and Open System Settings"), role: .destructive) {
                 resetAccessibilityPermission()
@@ -76,10 +111,9 @@ struct SettingsView: View {
                 "The current authorization will be removed. You will need to allow this app again in System Settings."
             ))
         }
-        .confirmationDialog(
+        .alert(
             L10n.string("dialog.restore_defaults.title", "Restore All Defaults?"),
-            isPresented: $showsRestoreDefaultsConfirmation,
-            titleVisibility: .visible
+            isPresented: $showsRestoreDefaultsConfirmation
         ) {
             Button(L10n.string("dialog.restore_defaults.action", "Restore Defaults"), role: .destructive) {
                 preferences.value = AppPreferences()
@@ -105,165 +139,177 @@ struct SettingsView: View {
         }
     }
 
-    private var sidebar: some View {
-        List(selection: $selectedPage) {
-            Section {
-                ForEach(SettingsPage.allCases) { page in
-                    Label {
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(page.title)
-                            Text(page.subtitle)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-                    } icon: {
-                        Image(systemName: page.symbol)
-                            .symbolVariant(selectedPage == page ? .fill : .none)
-                    }
-                    .tag(page)
-                    .padding(.vertical, 4)
-                }
-            } header: {
-                Text(verbatim: "TapDeck")
+    private func resize(_ window: NSWindow, for page: SettingsPage, animate: Bool) {
+        let frame = window.frame
+        let visibleFrame = (window.screen ?? NSScreen.main)?.visibleFrame
+        let height = min(page.windowHeight, visibleFrame?.height ?? page.windowHeight)
+        let top = if let visibleFrame {
+            max(visibleFrame.minY + height, min(frame.maxY, visibleFrame.maxY))
+        } else {
+            frame.maxY
+        }
+        let target = NSRect(x: frame.minX, y: top - height, width: frame.width, height: height)
+        guard target != frame else { return }
+        if animate {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.25
+                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                window.animator().setFrame(target, display: true)
             }
+        } else {
+            window.setFrame(target, display: true)
         }
-        .listStyle(.sidebar)
-        .safeAreaInset(edge: .bottom) {
-            sidebarStatus
-        }
-        .navigationSplitViewColumnWidth(min: 190, ideal: 205, max: 225)
     }
 
-    private var sidebarStatus: some View {
-        HStack(spacing: 9) {
-            StatusDot(color: Color(nsColor: coordinator.status.color))
-            VStack(alignment: .leading, spacing: 1) {
-                Text(coordinator.isTesting
-                     ? L10n.string("status.testing", "Testing")
-                     : coordinator.status.title)
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(1)
-                Text(preferences.value.isEnabled
-                     ? L10n.string("status.gesture_recognition_enabled", "Gesture recognition is enabled")
-                     : L10n.string("status.gesture_recognition_paused", "Gesture recognition is paused"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 11)
-        .background(.bar)
-        .overlay(alignment: .top) { Divider() }
-    }
-
-    @ViewBuilder
-    private var detail: some View {
-        switch selectedPage {
-        case .settings: settingsPage
-        case .test: testPage
-        case .logs: logsPage
-        }
+    private func tabLabel(_ page: SettingsPage) -> some View {
+        Label(page.title, systemImage: page.symbol)
     }
 
     private var settingsPage: some View {
-        PageScrollView {
-            pageHeader(
-                title: L10n.string("page.gestures.title", "Gesture Settings"),
-                subtitle: L10n.string(
-                    "page.gestures.subtitle",
-                    "Choose which trackpad gestures to recognize and what each gesture should do."
-                ),
-                symbol: "hand.tap.fill"
-            ) {
-                Toggle(L10n.string("page.gestures.enable", "Enable Recognition"), isOn: masterEnabled)
-                    .toggleStyle(.switch)
-            }
-
+        SettingsPane {
             statusContent
-            gestureList
-            advancedSettings
-            footer
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text(L10n.string("section.gestures.title", "Gestures and Actions"))
+                    Spacer()
+                    Text(L10n.string("gesture_row.action", "Action"))
+                        .frame(width: GestureRow.actionWidth, alignment: .trailing)
+                }
+                .font(.subheadline.weight(.semibold))
+                .padding(.bottom, 6)
+                ForEach(GestureKind.allCases) { gesture in
+                    Divider()
+                        .padding(.top, [.twoFingerClick, .threeFingerClick, .fourFingerClick].contains(gesture) ? 6 : 0)
+                    GestureRow(gesture: gesture)
+                        .padding(.vertical, 5)
+                }
+            }
+            Text(L10n.string(
+                "gesture_group.two_finger.note",
+                "Two-finger gestures are disabled by default to avoid overriding system assistive controls."
+            ))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            Divider()
+            sensitivitySettings
+
+            Label(
+                L10n.string(
+                    "footer.gesture_explanation",
+                    "Taps trigger after a quick touch and release; physical clicks require pressing the trackpad down."
+                ),
+                systemImage: "info.circle"
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
     }
 
     private var testPage: some View {
-        PageScrollView {
-            pageHeader(
-                title: L10n.string("page.test.title", "Gesture Test"),
-                subtitle: L10n.string(
-                    "page.test.subtitle",
-                    "Gestures performed here show recognition results without running configured actions."
-                ),
-                symbol: "waveform.path.ecg"
-            )
-
+        SettingsPane {
             statusContent
             testTrackpad
             testResults
         }
     }
 
-    private var logsPage: some View {
-        PageScrollView {
-            pageHeader(
-                title: L10n.string("page.activity_log.title", "Activity Log"),
-                subtitle: L10n.string(
-                    "page.activity_log.subtitle",
-                    "Review recognition, monitoring, and system events from this app session."
+    private var generalPage: some View {
+        SettingsPane {
+            statusContent
+            HStack(alignment: .top, spacing: 24) {
+                generalGroup(L10n.string("settings.group.recognition", "Gesture Recognition")) {
+                    Toggle(L10n.string("page.gestures.enable", "Enable Recognition"), isOn: masterEnabled)
+                    Toggle(L10n.string("advanced.haptic_feedback.title", "Haptic Feedback"), isOn: Binding(
+                        get: { preferences.value.hapticFeedback },
+                        set: { preferences.value.hapticFeedback = $0 }
+                    ))
+                }
+                generalGroup(L10n.string("settings.group.launch_and_display", "Launch and Display")) {
+                    Toggle(L10n.string("settings.show_menu_bar_icon", "Show in Menu Bar"), isOn: $menuBar.isVisible)
+                    if LaunchAtLoginController.isAvailable {
+                        Toggle(L10n.string("advanced.launch_at_login.title", "Launch at Login"), isOn: Binding(
+                            get: { preferences.value.launchAtLogin },
+                            set: {
+                                preferences.value.launchAtLogin = $0
+                                LaunchAtLoginController.setEnabled($0)
+                            }
+                        ))
+                    } else {
+                        Toggle(L10n.string("advanced.launch_at_login.title", "Launch at Login"), isOn: .constant(false))
+                            .disabled(true)
+                        Text(L10n.string("advanced.launch_at_login.debug_unavailable", "Unavailable in debug builds"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.leading, 20)
+                    }
+                }
+            }
+            .toggleStyle(.checkbox)
+
+            Divider()
+            Label(
+                L10n.string(
+                    "footer.privacy",
+                    "All recognition happens locally, with no networking, analytics, or telemetry."
                 ),
-                symbol: "list.bullet.rectangle.fill"
+                systemImage: "hand.raised.fill"
             )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    private func generalGroup<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var diagnosticsPage: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            activityStatus
+            HStack {
+                Button(L10n.string("permission.open_system_settings", "Open System Settings")) {
+                    if coordinator.status == .needsPermission {
+                        coordinator.requestPermission()
+                    }
+                    AccessibilityController.openSettings()
+                }
+                Button(L10n.string("advanced.open_trackpad_settings", "Open Trackpad Settings")) {
+                    AccessibilityController.openTrackpadSettings()
+                }
+                Spacer()
+                Menu(L10n.string("section.maintenance", "Permissions and Maintenance")) {
+                    Button(L10n.string("advanced.reset_accessibility", "Reset Accessibility Permission"), role: .destructive) {
+                        showsPermissionResetConfirmation = true
+                    }
+                    Button(L10n.string("advanced.restore_defaults", "Restore All Defaults"), role: .destructive) {
+                        showsRestoreDefaultsConfirmation = true
+                    }
+                }
+                .fixedSize()
+            }
+
+            Divider()
+
             ActivityLogView(log: coordinator.activityLog)
-                .cardSurface(padding: 16)
         }
-    }
-
-    private func pageHeader<Trailing: View>(
-        title: String,
-        subtitle: String,
-        symbol: String,
-        @ViewBuilder trailing: () -> Trailing
-    ) -> some View {
-        HStack(alignment: .center, spacing: 16) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    .fill(Color.accentColor.gradient)
-                Image(systemName: symbol)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 44, height: 44)
-            .shadow(color: Color.accentColor.opacity(0.18), radius: 6, y: 3)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.title2.weight(.bold))
-                    .tracking(-0.35)
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer(minLength: 12)
-            trailing()
-        }
-    }
-
-    private func pageHeader(title: String, subtitle: String, symbol: String) -> some View {
-        pageHeader(title: title, subtitle: subtitle, symbol: symbol) { EmptyView() }
+        .padding(20)
     }
 
     @ViewBuilder
     private var statusContent: some View {
         if coordinator.status == .needsPermission {
-            permissionCard
-        } else if coordinator.status == .noTrackpad || coordinator.status == .eventMonitorUnavailable {
-            warningCard
+            permissionNotice
+        } else if let warningMessage {
+            warningNotice(message: warningMessage)
         } else {
-            activityCard
+            activityStatus
         }
     }
 
@@ -277,11 +323,11 @@ struct SettingsView: View {
         )
     }
 
-    private var activityCard: some View {
+    private var activityStatus: some View {
         HStack(spacing: 12) {
             StatusDot(color: Color(nsColor: coordinator.status.color), size: 10)
             VStack(alignment: .leading, spacing: 2) {
-                Text(coordinator.isTesting
+                Text(coordinator.isTesting && coordinator.status == .listening
                      ? L10n.string("status.testing_gestures", "Testing Gestures")
                      : coordinator.status.title)
                     .fontWeight(.semibold)
@@ -308,10 +354,16 @@ struct SettingsView: View {
                 "Reconnect the trackpad and event monitor without changing settings."
             ))
         }
-        .cardSurface(padding: 14, tint: Color(nsColor: coordinator.status.color).opacity(0.055))
+        .padding(10)
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8))
     }
 
     private var activityDetail: String {
+        if coordinator.status == .needsPermission { return permissionMessage }
+        if let warningMessage { return warningMessage }
+        if coordinator.status == .stopped {
+            return L10n.string("status.gesture_recognition_paused", "Gesture recognition is paused")
+        }
         if coordinator.fingerCount > 0 {
             return L10n.currentFingers(coordinator.fingerCount)
         }
@@ -323,160 +375,32 @@ struct SettingsView: View {
             : L10n.string("status.ready_for_input", "Ready for trackpad input")
     }
 
-    private var gestureList: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeading(
-                title: L10n.string("section.gestures.title", "Gestures and Actions"),
-                detail: L10n.string("section.gestures.subtitle", "Enable a gesture, then choose the action it should perform.")
+    private var sensitivitySettings: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L10n.string("section.sensitivity", "Recognition Sensitivity"))
+                .font(.subheadline.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
+            SliderSetting(
+                title: L10n.string("advanced.tap_duration.title", "Maximum Tap Duration"),
+                detail: L10n.string("advanced.tap_duration.subtitle", "Longest contact time before fingers lift"),
+                value: Binding(get: { preferences.value.tapDuration }, set: {
+                    preferences.value.tapDuration = $0
+                    coordinator.updateSensitivity()
+                }),
+                range: 0.18...0.55,
+                valueText: "\(Int(preferences.value.tapDuration * 1000)) ms"
             )
-
-            gestureGroup(
-                title: L10n.string("gesture_group.two_finger", "Two Fingers"),
-                note: L10n.string(
-                    "gesture_group.two_finger.note",
-                    "Disabled by default to avoid overriding system assistive controls"
-                ),
-                gestures: [.twoFingerClick, .twoFingerTap]
-            )
-            gestureGroup(
-                title: L10n.string("gesture_group.three_finger", "Three Fingers"),
-                gestures: [.threeFingerClick, .threeFingerTap]
-            )
-            gestureGroup(
-                title: L10n.string("gesture_group.four_finger", "Four Fingers"),
-                gestures: [.fourFingerClick, .fourFingerTap]
-            )
-            gestureGroup(
-                title: L10n.string("gesture_group.force_touch", "Force Touch"),
-                gestures: [.oneFingerForceTouch]
+            SliderSetting(
+                title: L10n.string("advanced.movement_tolerance.title", "Movement Tolerance"),
+                detail: L10n.string("advanced.movement_tolerance.subtitle", "Allowed finger movement during a tap"),
+                value: Binding(get: { preferences.value.movementTolerance }, set: {
+                    preferences.value.movementTolerance = $0
+                    coordinator.updateSensitivity()
+                }),
+                range: 0.015...0.09,
+                valueText: String(format: "%.1f%%", preferences.value.movementTolerance * 100)
             )
         }
-    }
-
-    private func gestureGroup(
-        title: String,
-        note: String? = nil,
-        gestures: [GestureKind]
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                if let note {
-                    Text(note)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Text(L10n.format(
-                    "gesture_group.enabled_count",
-                    "%lld / %lld",
-                    Int64(gestures.filter { preferences.binding(for: $0).isEnabled }.count),
-                    Int64(gestures.count)
-                ))
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.tertiary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 13)
-            .padding(.bottom, 6)
-
-            ForEach(Array(gestures.enumerated()), id: \.element.id) { index, gesture in
-                GestureRow(gesture: gesture)
-                if index < gestures.count - 1 {
-                    Divider().padding(.leading, 62)
-                }
-            }
-        }
-        .cardSurface(padding: 0)
-    }
-
-    private var advancedSettings: some View {
-        DisclosureGroup(isExpanded: $showsAdvancedSettings) {
-            VStack(spacing: 0) {
-                SliderSetting(
-                    title: L10n.string("advanced.tap_duration.title", "Maximum Tap Duration"),
-                    detail: L10n.string("advanced.tap_duration.subtitle", "Longest contact time before fingers lift"),
-                    value: Binding(get: { preferences.value.tapDuration }, set: {
-                        preferences.value.tapDuration = $0
-                        coordinator.updateSensitivity()
-                    }),
-                    range: 0.18...0.55,
-                    valueText: "\(Int(preferences.value.tapDuration * 1000)) ms"
-                )
-                Divider().padding(.leading, 42)
-                SliderSetting(
-                    title: L10n.string("advanced.movement_tolerance.title", "Movement Tolerance"),
-                    detail: L10n.string("advanced.movement_tolerance.subtitle", "Allowed finger movement during a tap"),
-                    value: Binding(get: { preferences.value.movementTolerance }, set: {
-                        preferences.value.movementTolerance = $0
-                        coordinator.updateSensitivity()
-                    }),
-                    range: 0.015...0.09,
-                    valueText: String(format: "%.1f%%", preferences.value.movementTolerance * 100)
-                )
-                Divider().padding(.leading, 42)
-                SettingsToggleRow(
-                    symbol: "waveform",
-                    title: L10n.string("advanced.haptic_feedback.title", "Haptic Feedback"),
-                    detail: L10n.string("advanced.haptic_feedback.subtitle", "Provide one tactile confirmation after recognition"),
-                    isOn: Binding(get: { preferences.value.hapticFeedback }, set: {
-                        preferences.value.hapticFeedback = $0
-                    })
-                )
-
-                Divider().padding(.leading, 42)
-                if LaunchAtLoginController.isAvailable {
-                    SettingsToggleRow(
-                        symbol: "power",
-                        title: L10n.string("advanced.launch_at_login.title", "Launch at Login"),
-                        detail: L10n.string("advanced.launch_at_login.subtitle", "Start recognizing in the background after you sign in"),
-                        isOn: Binding(get: { preferences.value.launchAtLogin }, set: {
-                            preferences.value.launchAtLogin = $0
-                            LaunchAtLoginController.setEnabled($0)
-                        })
-                    )
-                } else {
-                    SettingsInfoRow(
-                        symbol: "hammer",
-                        title: L10n.string("advanced.launch_at_login.title", "Launch at Login"),
-                        detail: L10n.string("advanced.launch_at_login.debug_unavailable", "Unavailable in debug builds")
-                    )
-                }
-
-                Divider().padding(.leading, 42)
-                HStack(spacing: 8) {
-                    Button(L10n.string("advanced.open_trackpad_settings", "Open Trackpad Settings")) {
-                        AccessibilityController.openTrackpadSettings()
-                    }
-                    Button(L10n.string("advanced.reset_accessibility", "Reset Accessibility Permission"), role: .destructive) {
-                        showsPermissionResetConfirmation = true
-                    }
-                    Spacer()
-                    Menu {
-                        Button(L10n.string("advanced.restore_defaults", "Restore All Defaults"), role: .destructive) {
-                            showsRestoreDefaultsConfirmation = true
-                        }
-                        Divider()
-                        Button(L10n.string("advanced.quit", "Quit TapDeck"), role: .destructive) {
-                            NSApp.terminate(nil)
-                        }
-                    } label: {
-                        Label(L10n.string("common.more", "More"), systemImage: "ellipsis.circle")
-                    }
-                    .menuStyle(.borderlessButton)
-                    .fixedSize()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
-            }
-            .padding(.top, 8)
-        } label: {
-            Label(L10n.string("advanced.title", "Advanced Settings"), systemImage: "slider.horizontal.3")
-                .font(.headline)
-        }
-        .padding(16)
-        .cardSurface(padding: 0)
     }
 
     private func resetAccessibilityPermission() {
@@ -491,15 +415,12 @@ struct SettingsView: View {
         }
     }
 
-    private var permissionCard: some View {
-        NoticeCard(
+    private var permissionNotice: some View {
+        StatusNotice(
             symbol: "lock.shield.fill",
             color: .orange,
             title: L10n.string("permission.title", "Accessibility Permission Required"),
-            message: L10n.string(
-                "permission.message",
-                "This permission is used only to emit mouse and keyboard actions. Touch data never leaves this Mac."
-            )
+            message: permissionMessage
         ) {
             Button(L10n.string("permission.reset", "Reset Permission")) {
                 showsPermissionResetConfirmation = true
@@ -512,19 +433,32 @@ struct SettingsView: View {
         }
     }
 
-    private var warningCard: some View {
-        NoticeCard(
+    private var permissionMessage: String {
+        L10n.string(
+            "permission.message",
+            "This permission is used only to emit mouse and keyboard actions. Touch data never leaves this Mac."
+        )
+    }
+
+    private var warningMessage: String? {
+        switch coordinator.status {
+        case .noTrackpad:
+            L10n.string("warning.no_trackpad.message", "Make sure a trackpad is connected, then reconnect.")
+        case .eventMonitorUnavailable:
+            L10n.string("warning.event_monitor.message", "Make sure Accessibility permission is allowed, then reconnect.")
+        default:
+            nil
+        }
+    }
+
+    private func warningNotice(message: String) -> some View {
+        StatusNotice(
             symbol: "exclamationmark.triangle.fill",
             color: .orange,
             title: coordinator.status == .noTrackpad
                 ? L10n.string("warning.no_trackpad.title", "Trackpad Not Found")
                 : L10n.string("warning.event_monitor.title", "Could Not Start Event Monitoring"),
-            message: coordinator.status == .noTrackpad
-                ? L10n.string("warning.no_trackpad.message", "Make sure a trackpad is connected, then reconnect.")
-                : L10n.string(
-                    "warning.event_monitor.message",
-                    "Make sure Accessibility permission is allowed, then reconnect."
-                )
+            message: message
         ) {
             Button(L10n.string("common.reconnect", "Reconnect")) { coordinator.refresh() }
                 .buttonStyle(.borderedProminent)
@@ -535,33 +469,17 @@ struct SettingsView: View {
         VStack(spacing: 14) {
             ZStack {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color(nsColor: .controlBackgroundColor),
-                                Color(nsColor: .underPageBackgroundColor)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+                    .fill(Color(nsColor: .controlBackgroundColor))
                     .overlay {
                         RoundedRectangle(cornerRadius: 24, style: .continuous)
                             .strokeBorder(.separator.opacity(0.65), lineWidth: 1)
                     }
-                    .shadow(color: .black.opacity(0.08), radius: 12, y: 7)
 
                 HStack(spacing: 20) {
                     ForEach(0..<coordinator.fingerCount, id: \.self) { index in
-                        ZStack {
-                            Circle()
-                                .fill(Color.accentColor.opacity(0.16))
-                                .frame(width: 40, height: 40)
-                            Circle()
-                                .fill(Color.accentColor.gradient)
-                                .frame(width: 22, height: 22)
-                                .shadow(color: Color.accentColor.opacity(0.28), radius: 5)
-                        }
+                        Circle()
+                            .fill(Color.accentColor)
+                            .frame(width: 18, height: 18)
                         .transition(.scale(scale: 0.6).combined(with: .opacity))
                         .accessibilityLabel(
                             L10n.format("accessibility.finger_number", "Finger %d", index + 1)
@@ -569,8 +487,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .frame(maxWidth: 430)
-            .aspectRatio(2.35, contentMode: .fit)
+            .frame(width: 300, height: 124)
             .padding(.horizontal, 24)
             .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.78), value: coordinator.fingerCount)
 
@@ -586,138 +503,72 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            Label(
+                L10n.string("test.actions_not_run", "Test mode only — configured actions will not run."),
+                systemImage: "info.circle"
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .cardSurface(padding: 22)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .background(.quaternary.opacity(0.2), in: RoundedRectangle(cornerRadius: 12))
     }
 
     private var testResults: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                SectionHeading(
-                    title: L10n.string("test.results.title", "Recognition Results"),
-                    detail: L10n.string("test.results.subtitle", "This test session")
-                )
+                Text(L10n.string("test.results.title", "Recognition Results"))
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Button(L10n.string("test.clear_results", "Clear Results")) {
                     coordinator.clearTestResults()
                 }
-                    .disabled(coordinator.detectedGestures.isEmpty && coordinator.lastGesture == nil)
+                .disabled(coordinator.detectedGestures.isEmpty && coordinator.lastGesture == nil)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 13)
+            .padding(.bottom, 6)
 
-            Divider()
-
-            ForEach(Array(GestureKind.allCases.enumerated()), id: \.element.id) { index, gesture in
+            ForEach(GestureKind.allCases) { gesture in
                 let recognized = coordinator.detectedGestures.contains(gesture)
-                HStack(spacing: 12) {
-                    Image(systemName: gesture.symbol)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(recognized ? Color.accentColor : .secondary)
-                        .frame(width: 30, height: 30)
-                        .background(
-                            recognized ? Color.accentColor.opacity(0.12) : Color.secondary.opacity(0.08),
-                            in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        )
-                    Text(gesture.title)
-                        .fontWeight(.medium)
-                    Spacer()
-                    Label(
-                        recognized
-                            ? L10n.string("test.result.recognized", "Recognized")
-                            : L10n.string("test.result.waiting", "Waiting"),
-                        systemImage: recognized ? "checkmark.circle.fill" : "circle.dotted"
-                    )
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(recognized ? .green : .secondary)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .animation(reduceMotion ? nil : .spring(response: 0.28, dampingFraction: 0.9), value: recognized)
-
-                if index < GestureKind.allCases.count - 1 {
-                    Divider().padding(.leading, 58)
-                }
-            }
-
-            if let lastGesture = coordinator.lastGesture {
                 Divider()
-                Label(
-                    L10n.format("format.last_recognized", "Last recognized: %@", lastGesture.title),
-                    systemImage: "clock.arrow.circlepath"
-                )
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(14)
+                HStack {
+                    Text(gesture.title)
+                    Spacer()
+                    HStack(spacing: 6) {
+                        Image(systemName: recognized ? "checkmark.circle.fill" : "circle")
+                            .frame(width: 16)
+                            .accessibilityHidden(true)
+                        Text(recognized
+                            ? L10n.string("test.result.recognized", "Recognized")
+                            : L10n.string("test.result.waiting", "Waiting"))
+                    }
+                    .frame(width: 120, alignment: .leading)
+                    .foregroundStyle(recognized ? .green : .secondary)
+                }
+                .padding(.vertical, 5)
+                .accessibilityElement(children: .combine)
             }
+            Text(L10n.format("format.last_recognized", "Last recognized: %@", coordinator.lastGesture?.title ?? "—"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 6)
         }
-        .cardSurface(padding: 0)
-    }
-
-    private var footer: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Label(
-                L10n.string(
-                    "footer.gesture_explanation",
-                    "Taps trigger after a quick touch and release; physical clicks require pressing the trackpad down."
-                ),
-                systemImage: "info.circle"
-            )
-            Label(
-                L10n.string(
-                    "footer.privacy",
-                    "All recognition happens locally, with no networking, analytics, or telemetry."
-                ),
-                systemImage: "hand.raised.fill"
-            )
-        }
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(.horizontal, 2)
     }
 }
 
-private struct PageScrollView<Content: View>: View {
-    let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
+private struct SettingsPane<Content: View>: View {
+    @ViewBuilder let content: Content
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 content
             }
-            .padding(28)
-            .frame(maxWidth: 760, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-        }
-        .scrollIndicators(.automatic)
-        .background(Color(nsColor: .windowBackgroundColor))
-    }
-}
-
-private struct SectionHeading: View {
-    let title: String
-    let detail: String
-
-    init(title: String, detail: String = "") {
-        self.title = title
-        self.detail = detail
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.headline)
-            if !detail.isEmpty {
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
         }
     }
 }
@@ -730,15 +581,11 @@ private struct StatusDot: View {
         Circle()
             .fill(color)
             .frame(width: size, height: size)
-            .overlay {
-                Circle().stroke(color.opacity(0.22), lineWidth: 4)
-            }
-            .padding(3)
             .accessibilityHidden(true)
     }
 }
 
-private struct NoticeCard<Actions: View>: View {
+private struct StatusNotice<Actions: View>: View {
     let symbol: String
     let color: Color
     let title: String
@@ -760,77 +607,59 @@ private struct NoticeCard<Actions: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 13) {
+        HStack(alignment: .top, spacing: 10) {
             Image(systemName: symbol)
-                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(color)
-                .frame(width: 36, height: 36)
-                .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            VStack(alignment: .leading, spacing: 2) {
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 6) {
                 Text(title).fontWeight(.semibold)
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 8) { actions }
             }
-            Spacer(minLength: 12)
-            HStack(spacing: 8) { actions }
         }
-        .cardSurface(padding: 14, tint: color.opacity(0.065))
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 private struct GestureRow: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @EnvironmentObject private var preferences: PreferencesStore
     @EnvironmentObject private var coordinator: GestureCoordinator
     let gesture: GestureKind
+
+    static let actionWidth: CGFloat = 190
 
     private var binding: GestureBinding { preferences.binding(for: gesture) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             HStack(spacing: 12) {
-                Image(systemName: gesture.symbol)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(binding.isEnabled ? Color.accentColor : .secondary)
-                    .frame(width: 34, height: 34)
-                    .background(
-                        binding.isEnabled ? Color.accentColor.opacity(0.12) : Color.secondary.opacity(0.08),
-                        in: RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    )
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(gesture.title)
-                        .fontWeight(.medium)
-                    Text(gesture.subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer(minLength: 12)
-
-                Picker(L10n.string("gesture_row.action", "Action"), selection: Binding(get: { binding.action }, set: { action in
-                    preferences.update(gesture, action: action)
-                    coordinator.refresh()
-                })) {
-                    ForEach(GestureAction.allCases) { action in
-                        Label(action.title, systemImage: action.symbol).tag(action)
-                    }
-                }
-                .labelsHidden()
-                .frame(width: 182)
-                .disabled(!binding.isEnabled)
-
-                Toggle(
-                    L10n.format("gesture_row.enable", "Enable %@", gesture.title),
-                    isOn: Binding(get: { binding.isEnabled }, set: {
+                Toggle(gesture.title, isOn: Binding(get: { binding.isEnabled }, set: {
                     preferences.update(gesture, enabled: $0)
                     coordinator.refresh()
                 }))
+                .toggleStyle(.checkbox)
+                .help(gesture.subtitle)
+
+                Spacer(minLength: 12)
+
+                Picker(
+                    L10n.format("gesture_row.action_for", "Action for %@", gesture.title),
+                    selection: Binding(get: { binding.action }, set: { action in
+                        preferences.update(gesture, action: action)
+                        coordinator.refresh()
+                    })
+                ) {
+                    ForEach(GestureAction.allCases) { action in
+                        Text(action.title).tag(action)
+                    }
+                }
+                .pickerStyle(.menu)
                 .labelsHidden()
-                .toggleStyle(.switch)
-                .controlSize(.small)
+                .frame(width: Self.actionWidth, alignment: .trailing)
+                .disabled(!binding.isEnabled)
             }
 
             if binding.action == .openApplication {
@@ -855,15 +684,9 @@ private struct GestureRow: View {
                     .disabled(!binding.isEnabled)
                 }
                 .font(.subheadline)
-                .padding(.leading, 46)
-                .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .top)))
+                .padding(.leading, 20)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 11)
-        .opacity(binding.isEnabled ? 1 : 0.72)
-        .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.9), value: binding.action)
-        .animation(.easeOut(duration: 0.12), value: binding.isEnabled)
     }
 
     private func chooseApplication() {
@@ -878,7 +701,7 @@ private struct GestureRow: View {
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
-        panel.begin { response in
+        let choose: (NSApplication.ModalResponse) -> Void = { response in
             guard response == .OK, let url = panel.url else { return }
             let target = ApplicationTarget(
                 bundleIdentifier: Bundle(url: url)?.bundleIdentifier,
@@ -887,6 +710,11 @@ private struct GestureRow: View {
             )
             preferences.setApplication(target, for: gesture)
             coordinator.refresh()
+        }
+        if let window = NSApp.keyWindow {
+            panel.beginSheetModal(for: window, completionHandler: choose)
+        } else {
+            panel.begin(completionHandler: choose)
         }
     }
 }
@@ -900,9 +728,6 @@ private struct SliderSetting: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "dial.low")
-                .foregroundStyle(.secondary)
-                .frame(width: 26)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).fontWeight(.medium)
                 Text(detail)
@@ -910,7 +735,8 @@ private struct SliderSetting: View {
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 12)
-            Slider(value: $value, in: range)
+            Slider(value: $value, in: range) { Text(title) }
+                .labelsHidden()
                 .frame(width: 150)
             Text(valueText)
                 .font(.callout.monospacedDigit())
@@ -918,59 +744,6 @@ private struct SliderSetting: View {
                 .frame(width: 60, alignment: .trailing)
                 .contentTransition(.numericText())
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-}
-
-private struct SettingsToggleRow: View {
-    let symbol: String
-    let title: String
-    let detail: String
-    @Binding var isOn: Bool
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol)
-                .foregroundStyle(.secondary)
-                .frame(width: 26)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).fontWeight(.medium)
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            Toggle(title, isOn: $isOn)
-                .labelsHidden()
-                .toggleStyle(.switch)
-                .controlSize(.small)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-}
-
-private struct SettingsInfoRow: View {
-    let symbol: String
-    let title: String
-    let detail: String
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol)
-                .foregroundStyle(.secondary)
-                .frame(width: 26)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).fontWeight(.medium)
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
     }
 }
 
@@ -979,36 +752,69 @@ private struct ActivityLogView: View {
     @State private var copied = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Toggle(L10n.string("activity_log.enable", "Enable Logging"), isOn: Binding(
-                        get: { log.isEnabled },
-                        set: { log.setEnabled($0) }
-                    ))
-                    .toggleStyle(.switch)
-                    Text(L10n.string(
-                        "activity_log.retention",
-                        "Keeps up to 1,000 recent events from the current app session."
-                    ))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(L10n.string("navigation.activity_log", "Activity Log"))
+                    .font(.headline)
                 Spacer()
-                StatusDot(color: log.isEnabled ? .green : .secondary)
-                Text(log.isEnabled
-                     ? L10n.string("activity_log.recording", "Recording")
-                     : L10n.string("activity_log.paused", "Paused"))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                Toggle(L10n.string("activity_log.enable", "Enable Logging"), isOn: Binding(
+                    get: { log.isEnabled },
+                    set: { log.setEnabled($0) }
+                ))
+                .toggleStyle(.checkbox)
+                .help(L10n.string(
+                    "activity_log.retention",
+                    "Keeps up to 1,000 recent events from the current app session."
+                ))
+            }
+
+            if log.entries.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "list.bullet.rectangle")
+                        .font(.system(size: 28))
+                        .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
+                    Text(log.isEnabled
+                         ? L10n.string("activity_log.empty.title", "No Events Yet")
+                         : L10n.string("activity_log.disabled.title", "Logging Is Disabled"))
+                        .font(.headline)
+                    Text(log.isEnabled
+                         ? L10n.string("activity_log.empty.description", "Events will appear here after you perform a gesture or reconnect.")
+                         : L10n.string("activity_log.disabled.description", "Enable logging to record gestures, monitoring state, and sleep or wake events."))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 360)
+                }
+                .padding(24)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.quaternary.opacity(0.2), in: RoundedRectangle(cornerRadius: 8))
+            } else {
+                Table(log.entries.reversed()) {
+                    TableColumn(L10n.string("activity_log.column.time", "Time")) { entry in
+                        Text(entry.date.formatted(date: .numeric, time: .standard))
+                            .monospacedDigit()
+                    }
+                    .width(min: 105, ideal: 165)
+                    TableColumn(L10n.string("activity_log.column.category", "Category"), value: \.category)
+                        .width(min: 75, ideal: 100)
+                    TableColumn(L10n.string("activity_log.column.event", "Event")) { entry in
+                        Text(entry.message)
+                            .lineLimit(1)
+                            .help(entry.message)
+                    }
+                    .width(min: 140, ideal: 270)
+                }
+                .tableStyle(.bordered(alternatesRowBackgrounds: true))
             }
 
             HStack {
                 Text(L10n.eventCount(log.entries.count))
-                    .font(.subheadline.weight(.medium))
-                    .contentTransition(.numericText())
+                    .foregroundStyle(.secondary)
                 Spacer()
-                Button {
+                Button(copied
+                       ? L10n.string("activity_log.copied", "Copied")
+                       : L10n.string("activity_log.copy_all", "Copy All")) {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(log.plainText, forType: .string)
                     copied = true
@@ -1016,85 +822,37 @@ private struct ActivityLogView: View {
                         try? await Task.sleep(for: .seconds(1.5))
                         copied = false
                     }
-                } label: {
-                    Label(
-                        copied
-                            ? L10n.string("activity_log.copied", "Copied")
-                            : L10n.string("activity_log.copy_all", "Copy All"),
-                        systemImage: copied ? "checkmark" : "doc.on.doc"
-                    )
                 }
                 .disabled(log.entries.isEmpty)
                 Button(L10n.string("activity_log.clear", "Clear Log"), role: .destructive) {
                     log.clear()
                 }
-                    .disabled(log.entries.isEmpty)
-            }
-
-            Divider()
-
-            if log.entries.isEmpty {
-                ContentUnavailableView(
-                    log.isEnabled
-                        ? L10n.string("activity_log.empty.title", "No Events Yet")
-                        : L10n.string("activity_log.disabled.title", "Logging Is Disabled"),
-                    systemImage: "list.bullet.rectangle",
-                    description: Text(log.isEnabled
-                        ? L10n.string(
-                            "activity_log.empty.description",
-                            "Events will appear here after you perform a gesture or reconnect."
-                        )
-                        : L10n.string(
-                            "activity_log.disabled.description",
-                            "Enable logging to record gestures, monitoring state, and sleep or wake events."
-                        ))
-                )
-                .frame(maxWidth: .infinity, minHeight: 280)
-            } else {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(log.entries.reversed()) { entry in
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: "circle.fill")
-                                .font(.system(size: 6))
-                                .foregroundStyle(Color.accentColor)
-                                .frame(width: 12, height: 18)
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(entry.category).fontWeight(.semibold)
-                                    Spacer()
-                                    Text(entry.date.formatted(date: .numeric, time: .standard))
-                                        .monospacedDigit()
-                                        .foregroundStyle(.secondary)
-                                }
-                                .font(.caption)
-                                Text(entry.message)
-                                    .textSelection(.enabled)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                        }
-                        .padding(.vertical, 10)
-                        Divider().padding(.leading, 24)
-                    }
-                }
+                .disabled(log.entries.isEmpty)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }
 
-private extension View {
-    func cardSurface(padding: CGFloat, tint: Color = .clear) -> some View {
-        self
-            .padding(padding)
-            .background {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(.regularMaterial)
-                    .overlay(tint, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(.separator.opacity(0.48), lineWidth: 0.75)
-                    }
+private struct SettingsWindowReader: NSViewRepresentable {
+    let onWindow: (NSWindow?) -> Void
+
+    func makeNSView(context: Context) -> WindowView {
+        let view = WindowView()
+        view.onWindow = onWindow
+        return view
+    }
+
+    func updateNSView(_ nsView: WindowView, context: Context) {}
+
+    final class WindowView: NSView {
+        var onWindow: ((NSWindow?) -> Void)?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            let attachedWindow = window
+            DispatchQueue.main.async { [weak self] in
+                self?.onWindow?(attachedWindow)
             }
-            .shadow(color: .black.opacity(0.035), radius: 8, y: 3)
+        }
     }
 }

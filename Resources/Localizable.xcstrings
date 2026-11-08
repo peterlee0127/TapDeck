@@ -171,6 +171,57 @@
         }
       }
     },
+    "activity_log.column.category" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "類別"
+          }
+        }
+      }
+    },
+    "activity_log.column.event" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "事件"
+          }
+        }
+      }
+    },
+    "activity_log.column.time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "時間"
+          }
+        }
+      }
+    },
     "activity_log.copied" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1095,13 +1146,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Disabled by default to avoid overriding system assistive controls"
+            "value" : "Two-finger gestures are disabled by default to avoid overriding system assistive controls."
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "預設關閉，以免覆蓋系統輔助按鈕"
+            "value" : "雙指手勢預設關閉，以免覆蓋系統輔助按鈕。"
           }
         }
       }
@@ -1119,6 +1170,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "動作"
+          }
+        }
+      }
+    },
+    "gesture_row.action_for" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Action for %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@的動作"
           }
         }
       }
@@ -1939,6 +2007,23 @@
         }
       }
     },
+    "menu.hide_icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide Menu Bar Icon"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隱藏選單列圖示"
+          }
+        }
+      }
+    },
     "menu.open_settings" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2003,6 +2088,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "檢查監聽與動作事件"
+          }
+        }
+      }
+    },
+    "navigation.diagnostics" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnostics"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "診斷"
+          }
+        }
+      }
+    },
+    "navigation.general" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一般"
           }
         }
       }
@@ -2105,6 +2224,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "執行紀錄"
+          }
+        }
+      }
+    },
+    "page.diagnostics.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check permissions, trackpad connectivity, and recent events."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "檢查權限、觸控式軌跡板連線與近期事件。"
           }
         }
       }
@@ -2296,6 +2432,91 @@
         }
       }
     },
+    "section.maintenance" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions and Maintenance"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "權限與維護"
+          }
+        }
+      }
+    },
+    "section.sensitivity" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognition Sensitivity"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "辨識靈敏度"
+          }
+        }
+      }
+    },
+    "settings.group.launch_and_display" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launch and Display"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "啟動與顯示"
+          }
+        }
+      }
+    },
+    "settings.group.recognition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesture Recognition"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手勢辨識"
+          }
+        }
+      }
+    },
+    "settings.show_menu_bar_icon" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Menu Bar"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在選單列顯示"
+          }
+        }
+      }
+    },
     "status.event_monitor_unavailable" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2479,6 +2700,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "等待觸控板輸入；測試不會執行動作"
+          }
+        }
+      }
+    },
+    "test.actions_not_run" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test mode only — configured actions will not run."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅測試手勢，不會執行設定的動作。"
           }
         }
       }
