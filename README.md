@@ -1,5 +1,7 @@
 # TapDeck
 
+[![Build](https://github.com/peterlee0127/MacOS-clicker/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/peterlee0127/MacOS-clicker/actions/workflows/build.yml)
+
 TapDeck is a native macOS utility that turns multi-finger trackpad gestures into mouse clicks, system actions, and app shortcuts. It is written in Swift and SwiftUI, runs quietly in the background, and processes all touch data locally.
 
 ![TapDeck gesture settings](Documentation/Screenshots/gesture-settings.png)
@@ -113,6 +115,8 @@ When adding interface text, use a semantic localization key through `L10n` and s
 Touch processing is event-driven. While recognition is enabled, a lightweight health check runs every 15 seconds. Silent touch streams are conservatively reopened after 60 seconds, and transient device failures are retried after wake. Mouse and pressure monitors are installed only for enabled gestures. Non-trackpad multitouch devices, including the Touch Bar, are ignored; steady raw frames are limited to 60 Hz while finger landing and lift boundaries remain immediate.
 
 ## Tests
+
+GitHub Actions builds the release executable and runs the tests on macOS for every push and pull request. The Build workflow can also be run manually from the Actions tab.
 
 The Xcode project contains the native app target and a `TapDeckTests` unit-test target. `Package.swift` is included for command-line development.
 
